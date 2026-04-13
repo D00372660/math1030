@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ping Pang Pong</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="bg-texture"></div>
+
+  <main id="app">
+
+    <header>
+      <div class="logo-mark">
+        <span class="ball-icon white-icon"></span>
+        <span class="ball-icon orange-icon"></span>
+      </div>
+      <h1>Ping Pang Pong</h1>
+      <p class="tagline">Match your colors. Beat the house.</p>
+    </header>
+
+    <section class="hud">
+      <div class="hud-card">
+        <span class="hud-label">Balance</span>
+        <span class="hud-val" id="balance-display">$5</span>
+      </div>
+      <div class="hud-card center-hud">
+        <span class="hud-label">Round</span>
+        <span class="hud-val" id="round-display">1</span>
+      </div>
+      <div class="hud-card">
+        <span class="hud-label">Record</span>
+        <span class="hud-val" id="record-display">0 – 0</span>
+      </div>
+    </section>
+
+    <div class="progress-wrap">
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:50%"></div>
+        <div class="progress-thumb" id="progress-thumb" style="left:50%"></div>
+      </div>
+      <div class="progress-labels">
+        <span>$0</span>
+        <span class="progress-current" id="progress-label">$5</span>
+        <span>$10</span>
+      </div>
+    </div>
+
+    <section class="rules-strip">
+      <div class="rule"><span class="swatch white-swatch"></span> White</div>
+      <div class="rule"><span class="swatch orange-swatch"></span> Orange</div>
+      <div class="rule rule-divider">Match both = <strong>+$3</strong></div>
+      <div class="rule">Mixed = <strong>−$2</strong></div>
+    </section>
+
+    <section class="hopper-section">
+      <div class="hopper-header">
+        <span class="hopper-title">Hopper</span>
+        <span class="hopper-count" id="hopper-count">10 balls</span>
+      </div>
+      <div class="hopper-balls" id="hopper-balls"></div>
+    </section>
+
+    <section class="draw-area">
+      <div class="draw-slots">
+        <div class="slot" id="slot-1"><span class="slot-q">?</span></div>
+        <div class="slot-sep">+</div>
+        <div class="slot" id="slot-2"><span class="slot-q">?</span></div>
+      </div>
+      <p class="draw-hint" id="draw-hint">Press Draw, then click 2 mystery balls</p>
+    </section>
+
+    <div class="result-banner hidden" id="result-banner">
+      <span class="result-icon" id="result-icon"></span>
+      <div>
+        <p class="result-title" id="result-title"></p>
+        <p class="result-sub" id="result-sub"></p>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-draw" id="draw-btn" onclick="draw()">
+        <span class="btn-inner">Draw 2 balls &nbsp;·&nbsp; $2</span>
+      </button>
+      <button class="btn btn-reset" onclick="resetGame()">New Game</button>
+    </div>
+
+    <div class="history-section" id="history-section" style="display:none">
+      <p class="history-label">Round history</p>
+      <div class="history-dots" id="history-dots"></div>
+    </div>
+
+    <footer>
+      Win odds: 4/9 &asymp; 44.4% &nbsp;&bull;&nbsp; House edge &asymp; 11% &nbsp;&bull;&nbsp; Reach $10 to win &bull; $0 = bust
+    </footer>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
