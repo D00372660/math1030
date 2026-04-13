@@ -1,9 +1,16 @@
 'use strict';
 
+/* ── Config ── */
 const COST      = 2;
 const PRIZE     = 3;
 const START_BAL = 5;
 const WIN_BAL   = 10;
+
+/* Replace this URL with your deployed Google Apps Script web app URL */
+const SHEETS_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+
+/* ── State ── */
+let player = { name: '', initial: '' };
 
 let state = {
   balance  : START_BAL,
@@ -12,9 +19,10 @@ let state = {
   round    : 1,
   history  : [],
   done     : false,
-  phase    : 'idle',   // idle | picking | revealing | resolved
-  pool     : [],       // color for each hopper ball, index-matched
-  picks    : [],       // indices of picked balls (max 2)
+  phase    : 'idle',
+  pool     : [],
+  picks    : [],
+  startTime: null,
 };
 
 /* ── DOM helpers ── */
@@ -26,6 +34,40 @@ const el = (tag, cls, html) => {
   return e;
 };
 
+/* ── Splash / name gate ── */
+function startGame() {
+  const first   = $('input-firstname').value.trim();
+  const initial = $('input-lastinitial').value.trim().toUpperCase();
+
+  if (!first || !initial || !/^[A-Za-z]$/.test(initial)) {
+    $('splash-error').classList.remove('hidden');
+    if (!first) $('input-firstname').focus();
+    else        $('input-lastinitial').focus();
+    return;
+  }
+
+  $('splash-error').classList.add('hidden');
+  player.name    = first;
+  player.initial = initial;
+
+  $('splash').classList.add('hidden');
+  const app = $('app');
+  app.classList.remove('hidden');
+  app.classList.add('fade-in');
+
+  $('player-name-display').textContent = first + ' ' + initial + '.';
+  state.startTime = Date.now();
+
+  renderHopper();
+  updateHUD();
+}
+
+/* Allow Enter key to submit splash form */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !$('splash').classList.contains('hidden')) startGame();
+});
+
+/* ── Ball builders ── */
 function makeColorBall(color, size) {
   const b = el('div', `ball ${color}-ball`);
   b.textContent = color === 'white' ? 'W' : 'O';
@@ -42,6 +84,7 @@ function makeMysteryBall(index) {
   return b;
 }
 
+/* ── Render hopper ── */
 function renderHopper() {
   const grid = $('hopper-balls');
   grid.innerHTML = '';
@@ -62,6 +105,7 @@ function renderHopper() {
   $('hopper-count').textContent = '10 balls';
 }
 
+/* ── HUD ── */
 function updateHUD() {
   const b = state.balance;
   const bEl = $('balance-display');
@@ -76,6 +120,7 @@ function updateHUD() {
   $('progress-label').textContent = '$' + b;
 }
 
+/* ── Banners ── */
 function showBanner(type, icon, title, sub) {
   const banner = $('result-banner');
   banner.className = `result-banner ${type} banner-in`;
@@ -88,6 +133,7 @@ function hideBanner() {
   $('result-banner').className = 'result-banner hidden';
 }
 
+/* ── History dots ── */
 function addDot(win) {
   $('history-section').style.display = 'flex';
   const d = el('div', `h-dot ${win ? 'win' : 'lose'}-dot`);
@@ -95,6 +141,7 @@ function addDot(win) {
   $('history-dots').appendChild(d);
 }
 
+/* ── Slots ── */
 function fillSlot(slotId, color) {
   const slot = $(slotId);
   slot.innerHTML = '';
@@ -118,6 +165,7 @@ function clearSlots() {
   });
 }
 
+/* ── Hopper clickability ── */
 function setHopperClickable(on) {
   document.querySelectorAll('#hopper-balls .mystery-ball').forEach(b => {
     b.style.pointerEvents = on ? 'auto' : 'none';
@@ -126,6 +174,7 @@ function setHopperClickable(on) {
   });
 }
 
+/* ── Round start ── */
 function startRound() {
   if (state.done || state.balance < COST) return;
 
@@ -143,12 +192,12 @@ function startRound() {
   $('draw-hint').textContent = 'Click any ball — pick 1 of 2';
 }
 
+/* ── Ball click ── */
 function onBallClick(index) {
   if (state.phase !== 'picking') return;
   if (state.picks.includes(index)) return;
 
   state.picks.push(index);
-
   const hopperBall = $(`hball-${index}`);
   if (hopperBall) hopperBall.classList.add('mystery-selected');
 
@@ -168,12 +217,12 @@ function onBallClick(index) {
   }
 }
 
+/* ── Reveal ── */
 function revealResults() {
   const color1 = state.pool[state.picks[0]];
   const color2 = state.pool[state.picks[1]];
   const matched = color1 === color2;
 
-  /* flip the picked hopper balls to their true color */
   state.picks.forEach(idx => {
     const b = $(`hball-${idx}`);
     if (!b) return;
@@ -208,10 +257,12 @@ function revealResults() {
 
     if (state.balance >= WIN_BAL) {
       showBanner('over', '🏆', 'You win the game!', `Reached $${WIN_BAL} — cash out and walk away a winner!`);
+      recordSession('won');
       endGame(); return;
     }
     if (state.balance < COST) {
       showBanner('bust', '💀', 'Busted.', 'You ran out of money. Better luck next game.');
+      recordSession('bust');
       endGame(); return;
     }
 
@@ -229,18 +280,50 @@ function revealResults() {
   }, 950);
 }
 
+/* ── End game ── */
 function endGame() {
   state.done = true;
   $('draw-btn').disabled = true;
   $('draw-btn').querySelector('.btn-inner').textContent = 'Game Over';
 }
 
+/* ── Google Sheets data submission ── */
+function recordSession(outcome) {
+  if (!SHEETS_URL || SHEETS_URL === 'YOUR_APPS_SCRIPT_URL_HERE') return;
+
+  const totalRounds = state.wins + state.losses;
+  const winRate     = totalRounds > 0 ? ((state.wins / totalRounds) * 100).toFixed(1) : '0.0';
+  const duration    = state.startTime ? Math.round((Date.now() - state.startTime) / 1000) : 0;
+
+  const payload = {
+    playerName   : player.name + ' ' + player.initial + '.',
+    outcome      : outcome,          // 'won' or 'bust'
+    totalRounds  : totalRounds,
+    roundWins    : state.wins,
+    roundLosses  : state.losses,
+    winRate      : winRate,
+    finalBalance : state.balance,
+    durationSecs : duration,
+    timestamp    : new Date().toISOString(),
+  };
+
+  fetch(SHEETS_URL, {
+    method : 'POST',
+    mode   : 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body   : JSON.stringify(payload),
+  }).catch(() => { /* silently fail — don't disrupt the player */ });
+}
+
+/* ── Public draw() ── */
 function draw() { startRound(); }
 
+/* ── Reset ── */
 function resetGame() {
   state = {
     balance: START_BAL, wins: 0, losses: 0, round: 1,
     history: [], done: false, phase: 'idle', pool: [], picks: [],
+    startTime: Date.now(),
   };
   renderHopper();
   setHopperClickable(false);
@@ -253,6 +336,3 @@ function resetGame() {
   $('draw-btn').querySelector('.btn-inner').textContent = `Draw 2 balls · $${COST}`;
   $('draw-hint').textContent = 'Press Draw to pick two balls';
 }
-
-renderHopper();
-updateHUD();

@@ -10,7 +10,45 @@
 
   <div class="bg-texture"></div>
 
-  <main id="app">
+  <!-- ── Splash / name entry screen ── -->
+  <div id="splash">
+    <div class="splash-card">
+      <div class="logo-mark">
+        <span class="ball-icon white-icon"></span>
+        <span class="ball-icon orange-icon"></span>
+      </div>
+      <h1>Ping Pang Pong</h1>
+      <p class="splash-sub">Match your colors. Beat the house.</p>
+
+      <div class="splash-form">
+        <div class="field-group">
+          <label class="field-label" for="input-firstname">First name</label>
+          <input type="text" id="input-firstname" class="field-input" placeholder="e.g. Aaron" maxlength="32" autocomplete="off" />
+        </div>
+        <div class="field-group field-group-short">
+          <label class="field-label" for="input-lastinitial">Last initial</label>
+          <input type="text" id="input-lastinitial" class="field-input" placeholder="e.g. S" maxlength="1" autocomplete="off" />
+        </div>
+      </div>
+
+      <p class="splash-error hidden" id="splash-error">Please enter your first name and last initial.</p>
+
+      <button class="btn btn-start" id="start-btn" onclick="startGame()">
+        Let's Play
+      </button>
+
+      <div class="splash-rules">
+        <div class="splash-rule"><span class="swatch white-swatch"></span> 5 white &nbsp;+&nbsp; <span class="swatch orange-swatch"></span> 5 orange</div>
+        <div class="splash-rule-sep">·</div>
+        <div class="splash-rule">Pick 2 — match = <strong>+$3</strong> &nbsp;·&nbsp; mix = <strong>−$2</strong></div>
+        <div class="splash-rule-sep">·</div>
+        <div class="splash-rule">Start $5 &nbsp;·&nbsp; Win at $10 &nbsp;·&nbsp; Bust at $0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Main game ── -->
+  <main id="app" class="hidden">
 
     <header>
       <div class="logo-mark">
@@ -18,7 +56,7 @@
         <span class="ball-icon orange-icon"></span>
       </div>
       <h1>Ping Pang Pong</h1>
-      <p class="tagline">Match your colors. Beat the house.</p>
+      <p class="tagline">Good luck, <span id="player-name-display"></span>!</p>
     </header>
 
     <section class="hud">

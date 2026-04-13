@@ -49,6 +49,103 @@ body {
     radial-gradient(ellipse 50% 50% at 80% 90%, rgba(106,176,76,0.06) 0%, transparent 70%);
 }
 
+.hidden { display: none !important; }
+
+/* ════════════════════════════════════
+   SPLASH SCREEN
+   ════════════════════════════════════ */
+#splash {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 420px;
+  display: flex; align-items: flex-start; justify-content: center;
+}
+
+.splash-card {
+  width: 100%;
+  background: var(--surface);
+  border: 0.5px solid var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 2rem 1.75rem 1.75rem;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 1.25rem;
+}
+
+.splash-card h1 {
+  font-size: 30px; font-weight: 800; letter-spacing: -0.5px;
+  color: var(--text); line-height: 1; text-align: center;
+}
+
+.splash-sub {
+  font-size: 14px; color: var(--muted); text-align: center;
+  font-weight: 400; letter-spacing: 0.04em; margin-top: -0.5rem;
+}
+
+.splash-form {
+  width: 100%; display: flex; gap: 12px; align-items: flex-end;
+}
+
+.field-group { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.field-group-short { flex: 0 0 90px; }
+
+.field-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted);
+}
+
+.field-input {
+  width: 100%; padding: 10px 12px;
+  background: var(--surface2);
+  border: 0.5px solid var(--border2);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  font-size: 15px; font-weight: 500;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.field-input::placeholder { color: var(--muted); font-weight: 400; }
+.field-input:focus {
+  border-color: var(--orange-ball);
+  box-shadow: 0 0 0 3px rgba(240,112,48,0.15);
+}
+
+.splash-error {
+  font-size: 13px; color: var(--red);
+  text-align: center; margin-top: -0.5rem;
+}
+
+.btn-start {
+  width: 100%; padding: 14px;
+  background: var(--orange-ball);
+  color: #1a0800;
+  border: none; border-radius: var(--radius);
+  font-family: 'Syne', sans-serif;
+  font-size: 16px; font-weight: 800;
+  letter-spacing: 0.02em; cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-start:hover { background: #e06020; }
+.btn-start:active { transform: scale(0.97); }
+
+.splash-rules {
+  width: 100%;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 4px; padding-top: 0.25rem;
+  border-top: 0.5px solid var(--border);
+}
+
+.splash-rule {
+  font-size: 12px; color: var(--muted);
+  display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
+  justify-content: center;
+}
+.splash-rule strong { color: var(--text); }
+.splash-rule-sep { color: var(--border2); font-size: 16px; }
+
+/* ════════════════════════════════════
+   MAIN GAME
+   ════════════════════════════════════ */
 #app {
   position: relative; z-index: 1;
   width: 100%; max-width: 480px;
@@ -154,6 +251,7 @@ h1 {
 
 .swatch {
   display: inline-block; width: 12px; height: 12px; border-radius: 50%;
+  flex-shrink: 0;
 }
 .white-swatch  { background: var(--white-ball); }
 .orange-swatch { background: var(--orange-ball); }
@@ -215,17 +313,13 @@ h1 {
 }
 .ball.mystery-ball::after { display: none; }
 
-.ball.mystery-ball.clickable {
-  cursor: pointer;
-}
+.ball.mystery-ball.clickable { cursor: pointer; }
 .ball.mystery-ball.clickable:hover {
   background: #3a3733;
   box-shadow: inset 0 -2px 4px rgba(0,0,0,0.3), 0 0 0 2px rgba(255,255,255,0.2);
   transform: scale(1.08);
 }
-.ball.mystery-ball.clickable:active {
-  transform: scale(0.95);
-}
+.ball.mystery-ball.clickable:active { transform: scale(0.95); }
 .ball.mystery-ball.mystery-selected {
   background: #3d3830;
   box-shadow: inset 0 -2px 4px rgba(0,0,0,0.3), 0 0 0 2px var(--amber);
@@ -243,9 +337,7 @@ h1 {
   50%  { transform: scaleX(0); }
   100% { transform: scaleX(1); }
 }
-.ball.revealing {
-  animation: flip-reveal 0.45s ease forwards;
-}
+.ball.revealing { animation: flip-reveal 0.45s ease forwards; }
 
 /* ── Draw Area ── */
 .draw-area {
@@ -291,13 +383,13 @@ h1 {
 .result-title { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
 .result-sub   { font-size: 13px; font-weight: 400; opacity: 0.8; }
 
-.result-banner.win  .result-title { color: var(--green); }
+.result-banner.win  .result-title,
 .result-banner.win  .result-sub   { color: var(--green); }
-.result-banner.lose .result-title { color: var(--red); }
+.result-banner.lose .result-title,
 .result-banner.lose .result-sub   { color: var(--red); }
-.result-banner.over .result-title { color: var(--amber); }
+.result-banner.over .result-title,
 .result-banner.over .result-sub   { color: var(--amber); }
-.result-banner.bust .result-title { color: var(--red); }
+.result-banner.bust .result-title,
 .result-banner.bust .result-sub   { color: var(--red); }
 
 /* ── Buttons ── */
@@ -318,7 +410,6 @@ h1 {
   color: #1a0800;
   position: relative; overflow: hidden;
 }
-
 .btn-draw::before {
   content: ''; position: absolute; inset: 0;
   background: rgba(255,255,255,0); transition: background 0.15s;
@@ -369,7 +460,7 @@ footer {
   100% { transform: translateY(0) scale(1); opacity: 1; }
 }
 
-.ball-pop { animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.ball-pop    { animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 .slot-reveal { animation: slot-reveal 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 
 @keyframes banner-in {
@@ -378,14 +469,24 @@ footer {
 }
 .banner-in { animation: banner-in 0.25s ease forwards; }
 
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fade-in 0.3s ease forwards; }
+
 /* ── Responsive ── */
 @media (max-width: 420px) {
   body { padding: 1.25rem 0.75rem 2.5rem; }
   h1 { font-size: 26px; }
+  .splash-card h1 { font-size: 24px; }
   .hud-val { font-size: 18px; }
   .slot { width: 52px; height: 52px; }
   .slot .ball { width: 52px; height: 52px; }
   .rules-strip { font-size: 12px; gap: 10px; }
   .rule-divider { margin-left: 0; width: 100%; }
   .hopper-balls { gap: 8px; }
+  .splash-card { padding: 1.5rem 1.25rem; }
+  .splash-form { flex-direction: column; }
+  .field-group-short { flex: 1; }
 }
